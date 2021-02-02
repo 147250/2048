@@ -1,4 +1,4 @@
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from widget import GameGrid
 from matrix import Matrix
 from constant import ROW, COLUMN
@@ -6,9 +6,10 @@ import sys
 import random
 
 
-class GameManager:
+class GameManager(QtCore.QObject):
 
     def __init__(self, row, column):
+        super(GameManager, self).__init__()
 
         self.matrix = Matrix(row, column)
 
@@ -25,7 +26,8 @@ class GameManager:
         self.window.move(rect.topLeft())
         sys.exit(self.app.exec())
 
-    def key_press(self, key_signal: str) -> None:
+    @QtCore.pyqtSlot(str)
+    def key_press(self, key_signal):
         if key_signal == 'left':
             matrix = self.matrix.get_matrix_left(self.matrix.field)
         elif key_signal == 'right':
