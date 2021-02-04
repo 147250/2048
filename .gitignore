@@ -1,3 +1,5 @@
 /utest_matrix.py
 .idea/
 __pycache__/
+test_matrix.py
+.gitignore
