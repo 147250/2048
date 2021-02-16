@@ -1,5 +1,5 @@
 from PyQt5 import QtWidgets, QtCore
-from widget import GameGrid
+from widget import MainWindow
 from matrix import Matrix
 from constant import ROW, COLUMN
 import sys
@@ -8,23 +8,33 @@ import random
 
 class GameManager(QtCore.QObject):
 
-    def __init__(self, row, column):
+    def __init__(self):
         super(GameManager, self).__init__()
 
-        self.matrix = Matrix(row, column)
+        self.matrix = None
+        self.grid = None
 
-        # draw window
+        # draw main window
         self.app = QtWidgets.QApplication(sys.argv)
-        self.window = GameGrid(row, column)
+        self.window = MainWindow()
+        self.window.resize(250, 250)
         self.window.setWindowTitle('2048')
-        self.window.change_labels_text(self.matrix.field)
-        self.window.key_signal.connect(self.key_press)
+        self.window.widget.start_btn.clicked.connect(self.start_game)
         self.window.show()
+
         desktop_center = QtWidgets.QApplication.desktop().availableGeometry().center()
         rect = self.window.frameGeometry()
         rect.moveCenter(desktop_center)
         self.window.move(rect.topLeft())
+
         sys.exit(self.app.exec())
+
+    def start_game(self):
+        # draw game grid
+        self.matrix = Matrix(ROW, COLUMN)
+        self.grid = self.window.widget
+        self.grid.change_labels_text(self.matrix.field)
+        self.grid.key_signal.connect(self.key_press)
 
     @QtCore.pyqtSlot(str)
     def key_press(self, key_signal):
@@ -49,8 +59,8 @@ class GameManager(QtCore.QObject):
                 raise StopIteration('Конец игры')
             else:
                 self.matrix.field = matrix
-                self.window.change_labels_text(self.matrix.field)
-                self.window.score_label.setText(f'Score: {self.matrix.score}')
+                self.grid.change_labels_text(self.matrix.field)
+                self.grid.score_label.setText(f'Score: {self.matrix.score}')
 
     def end_game(self, matrix: list) -> bool:
         if self.matrix.get_matrix_left(matrix) != matrix:
@@ -66,4 +76,4 @@ class GameManager(QtCore.QObject):
 
 
 if __name__ == '__main__':
-    GameManager(ROW, COLUMN)
+    GameManager()

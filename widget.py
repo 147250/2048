@@ -1,5 +1,20 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-from constant import WIDTH_CELL
+from constant import WIDTH_CELL, ROW, COLUMN
+
+
+class StartWindow(QtWidgets.QWidget):
+    def __init__(self, parent=None):
+        super(StartWindow, self).__init__(parent)
+        self.label = QtWidgets.QLabel('2048')
+        self.label.setAlignment(QtCore.Qt.AlignCenter)
+
+        self.start_btn = QtWidgets.QPushButton('Start')
+
+        self.vbox = QtWidgets.QVBoxLayout()
+        self.vbox.addWidget(self.label)
+        self.vbox.addWidget(self.start_btn)
+
+        self.setLayout(self.vbox)
 
 
 class Cell(QtWidgets.QLabel):
@@ -61,6 +76,24 @@ class GameGrid(QtWidgets.QWidget):
             evnt.ignore()
             QtWidgets.QWidget.keyPressEvent(self, evnt)
 
+
+class MainWindow(QtWidgets.QMainWindow):
+
+    def __init__(self):
+        super(MainWindow, self).__init__()
+        self.widget = StartWindow()
+        self.widget.start_btn.clicked.connect(self.start_game)
+        self.setCentralWidget(self.widget)
+        self.layout().setAlignment(QtCore.Qt.AlignCenter)
+
+    def start_game(self):
+        self.widget = GameGrid(ROW, COLUMN)
+        self.setCentralWidget(self.widget)
+
+    def keyPressEvent(self, evnt: QtGui.QKeyEvent) -> None:
+        evnt.ignore()
+        self.widget.keyPressEvent(evnt)
+
     def closeEvent(self, evnt: QtGui.QCloseEvent) -> None:
         msg_box = QtWidgets.QMessageBox(self)
         msg_box.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.FramelessWindowHint)
@@ -75,3 +108,12 @@ class GameGrid(QtWidgets.QWidget):
             evnt.accept()
         elif msg_box.clickedButton() == abort_btn:
             evnt.ignore()
+
+
+if __name__ == '__main__':
+    import sys
+
+    app = QtWidgets.QApplication(sys.argv)
+    window = MainWindow()
+    window.show()
+    sys.exit(app.exec())
