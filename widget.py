@@ -96,6 +96,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
         self.start_game_signal.emit()
 
+    def game_over_message(self):
+        score = self.widget.score_label.text()
+
+        message = QtWidgets.QMessageBox(self.widget)
+        message.setIcon(message.NoIcon)
+        message.setText(f'Game Over\n\nYour score {score}')
+        message.addButton(message.Ok)
+        message.exec()
+        self.init_start_menu()
+
     def keyPressEvent(self, evnt: QtGui.QKeyEvent) -> None:
         evnt.ignore()
         self.widget.keyPressEvent(evnt)
@@ -115,15 +125,11 @@ class MainWindow(QtWidgets.QMainWindow):
         elif msg_box.clickedButton() == abort_btn:
             evnt.ignore()
 
-    def game_over_message(self):
-        score = self.widget.score_label.text()
-
-        message = QtWidgets.QMessageBox(self.widget)
-        message.setIcon(message.NoIcon)
-        message.setText(f'Game Over\n\nYour score {score}')
-        message.addButton(message.Ok)
-        message.exec()
-        self.init_start_menu()
+    def center_desktop(self):
+        desktop_center = QtWidgets.QApplication.desktop().availableGeometry().center()
+        rect = self.frameGeometry()
+        rect.moveCenter(desktop_center)
+        self.move(rect.topLeft())
 
 
 if __name__ == '__main__':

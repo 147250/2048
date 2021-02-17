@@ -21,12 +21,7 @@ class GameManager(QtCore.QObject):
         self.window.setWindowTitle('2048')
         self.window.start_game_signal.connect(self.start_game)
         self.window.show()
-
-        desktop_center = QtWidgets.QApplication.desktop().availableGeometry().center()
-        rect = self.window.frameGeometry()
-        rect.moveCenter(desktop_center)
-        self.window.move(rect.topLeft())
-
+        self.window.center_desktop()
         sys.exit(self.app.exec())
 
     def start_game(self):
