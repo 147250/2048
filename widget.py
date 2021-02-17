@@ -78,17 +78,23 @@ class GameGrid(QtWidgets.QWidget):
 
 
 class MainWindow(QtWidgets.QMainWindow):
+    start_game_signal = QtCore.pyqtSignal()
 
     def __init__(self):
         super(MainWindow, self).__init__()
+
+        self.widget = None
+        self.init_start_menu()
+
+    def init_start_menu(self):
         self.widget = StartWindow()
         self.widget.start_btn.clicked.connect(self.start_game)
         self.setCentralWidget(self.widget)
-        self.layout().setAlignment(QtCore.Qt.AlignCenter)
 
     def start_game(self):
         self.widget = GameGrid(ROW, COLUMN)
         self.setCentralWidget(self.widget)
+        self.start_game_signal.emit()
 
     def keyPressEvent(self, evnt: QtGui.QKeyEvent) -> None:
         evnt.ignore()
@@ -108,6 +114,16 @@ class MainWindow(QtWidgets.QMainWindow):
             evnt.accept()
         elif msg_box.clickedButton() == abort_btn:
             evnt.ignore()
+
+    def game_over_message(self):
+        score = self.widget.score_label.text()
+
+        message = QtWidgets.QMessageBox(self.widget)
+        message.setIcon(message.NoIcon)
+        message.setText(f'Game Over\n\nYour score {score}')
+        message.addButton(message.Ok)
+        message.exec()
+        self.init_start_menu()
 
 
 if __name__ == '__main__':

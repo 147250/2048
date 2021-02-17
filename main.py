@@ -19,7 +19,7 @@ class GameManager(QtCore.QObject):
         self.window = MainWindow()
         self.window.resize(250, 250)
         self.window.setWindowTitle('2048')
-        self.window.widget.start_btn.clicked.connect(self.start_game)
+        self.window.start_game_signal.connect(self.start_game)
         self.window.show()
 
         desktop_center = QtWidgets.QApplication.desktop().availableGeometry().center()
@@ -35,6 +35,9 @@ class GameManager(QtCore.QObject):
         self.grid = self.window.widget
         self.grid.change_labels_text(self.matrix.field)
         self.grid.key_signal.connect(self.key_press)
+
+    def game_over(self):
+        self.window.game_over_message()
 
     @QtCore.pyqtSlot(str)
     def key_press(self, key_signal):
@@ -56,7 +59,7 @@ class GameManager(QtCore.QObject):
             empty_cells = len(empty_list) - 1
 
             if not empty_cells and self.end_game(matrix):
-                raise StopIteration('Конец игры')
+                self.game_over()
             else:
                 self.matrix.field = matrix
                 self.grid.change_labels_text(self.matrix.field)
