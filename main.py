@@ -17,7 +17,7 @@ class GameManager(QtCore.QObject):
         # draw main window
         self.app = QtWidgets.QApplication(sys.argv)
         self.window = MainWindow()
-        self.window.resize(250, 250)
+        # self.window.resize(350, 350)
         self.window.setWindowTitle('2048')
         self.window.start_game_signal.connect(self.start_game)
         self.window.show()
@@ -27,7 +27,7 @@ class GameManager(QtCore.QObject):
     def start_game(self):
         # draw game grid
         self.matrix = Matrix(ROW, COLUMN)
-        self.grid = self.window.widget
+        self.grid = self.window.centralWidget()
         self.grid.change_labels_text(self.matrix.field)
         self.grid.key_signal.connect(self.key_press)
 
@@ -59,6 +59,8 @@ class GameManager(QtCore.QObject):
                 self.matrix.field = matrix
                 self.grid.change_labels_text(self.matrix.field)
                 self.grid.score_label.setText(f'Score: {self.matrix.score}')
+                self.grid.progress_bar_thread.change_new_value(self.matrix.score)
+                self.grid.progress_bar_thread.start()
 
     def end_game(self, matrix: list) -> bool:
         if self.matrix.get_matrix_left(matrix) != matrix:
