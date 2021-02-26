@@ -1,5 +1,5 @@
 import random
-from constant import CHANCE_GET_FOUR
+from constant import *
 
 
 class Matrix:

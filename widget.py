@@ -60,7 +60,7 @@ class ProgressBarThread(QtCore.QThread):
             for i in range(start, stop + step, step):
                 self.old_value = i
                 self.progress_signal.emit(i)
-                self.msleep(20)
+                self.msleep(1)
 
     def change_new_value(self, value):
         self.new_value = value
