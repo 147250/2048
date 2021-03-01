@@ -161,7 +161,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.volume_mute_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaVolumeMuted)
         self.volume_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaVolume)
         self.mute_btn = ToolButton()
-        self.mute_btn.is_muted = False
         self.mute_btn.setIcon(self.volume_icon)
         self.mute_btn.clicked.connect(self.change_mute_icon)
         self.volume_slider = Slider()
@@ -216,13 +215,11 @@ class MainWindow(QtWidgets.QMainWindow):
         pos = QtWidgets.QApplication.desktop().availableGeometry().center()
         self.move(pos - QtCore.QPoint(self.width() // 2, self.height() // 2))
 
-    def change_mute_icon(self):
-        if self.mute_btn.is_muted:
-            self.mute_btn.setIcon(self.volume_icon)
-            self.mute_btn.is_muted = False
-        else:
+    def change_mute_icon(self, state: bool) -> None:
+        if state:
             self.mute_btn.setIcon(self.volume_mute_icon)
-            self.mute_btn.is_muted = True
+        else:
+            self.mute_btn.setIcon(self.volume_icon)
 
 
 if __name__ == '__main__':

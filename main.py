@@ -1,6 +1,7 @@
-from PyQt5 import QtWidgets, QtCore
+from PyQt5 import QtWidgets, QtCore, QtMultimedia
 from widget import MainWindow
 from matrix import Matrix
+from pathlib import Path
 from constant import *
 import sys
 import random
@@ -22,11 +23,36 @@ class GameManager(QtCore.QObject):
         self.window.start_game_signal.connect(self.start_game)
         self.window.show()
         self.window.center_desktop()
+
+        # connect sound tool bar
+        self.window.mute_btn.clicked.connect(self.mute_sound)
+        self.window.volume_slider.valueChanged.connect(self.change_volume)
+
+        # sound
+        self.player = QtMultimedia.QMediaPlayer(flags=QtMultimedia.QMediaPlayer.LowLatency)
+
+        path = Path('sounds', 'complete.wav').absolute().__str__()
+        sound_file = QtCore.QUrl.fromLocalFile(path)
+        self.sound_score = QtMultimedia.QMediaContent(sound_file)
+
+        path = Path('sounds', 'move.wav').absolute().__str__()
+        sound_file = QtCore.QUrl.fromLocalFile(path)
+        self.sound_move = QtMultimedia.QMediaContent(sound_file)
+
+        path = Path('sounds', 'no_possible.wav').absolute().__str__()
+        sound_file = QtCore.QUrl.fromLocalFile(path)
+        self.sound_no_possible = QtMultimedia.QMediaContent(sound_file)
+
+        path = Path('sounds', 'start.wav').absolute().__str__()
+        sound_file = QtCore.QUrl.fromLocalFile(path)
+        self.sound_start = QtMultimedia.QMediaContent(sound_file)
+
+        # start application
         sys.exit(self.app.exec())
 
     def start_game(self):
         # draw game grid
-        self.start_sound.play()
+        self.play_sound(self.sound_start)
         self.matrix = Matrix(ROW, COLUMN)
         self.grid = self.window.centralWidget()
         self.grid.change_labels_text(self.matrix.field)
@@ -60,16 +86,16 @@ class GameManager(QtCore.QObject):
                 self.game_over()
             else:
                 if cur_score < self.matrix.score:
-                    self.complete_sound.play()
+                    self.play_sound(self.sound_score)
                 else:
-                    self.move_sound.play()
+                    self.play_sound(self.sound_move)
                 self.matrix.field = matrix
                 self.grid.change_labels_text(self.matrix.field)
                 self.grid.score_label.setText(f'Score: {self.matrix.score}')
                 self.grid.progress_bar_thread.change_new_value(self.matrix.score)
                 self.grid.progress_bar_thread.start()
         else:
-            self.play_sound(self.no_possible_sound)
+            self.play_sound(self.sound_no_possible)
 
     def no_moves(self, matrix: list) -> bool:
         if self.matrix.get_matrix_left(matrix) != matrix:
@@ -82,6 +108,20 @@ class GameManager(QtCore.QObject):
             return False
         else:
             return True
+
+    def play_sound(self, sound):
+        self.player.setMedia(sound)
+        self.player.play()
+
+    def mute_sound(self):
+        state = not self.player.isMuted()
+        self.player.setMuted(state)
+        self.window.change_mute_icon(state)
+
+    def change_volume(self, value):
+        self.player.setVolume(value)
+        self.player.setMuted(False)
+        self.window.change_mute_icon(False)
 
 
 if __name__ == '__main__':
