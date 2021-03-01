@@ -1,10 +1,9 @@
-from PyQt5 import QtWidgets, QtCore, QtMultimedia
+from PyQt5 import QtWidgets, QtCore
 from widget import MainWindow
 from matrix import Matrix
 from constant import *
 import sys
 import random
-from pathlib import Path
 
 
 class GameManager(QtCore.QObject):
@@ -23,28 +22,6 @@ class GameManager(QtCore.QObject):
         self.window.start_game_signal.connect(self.start_game)
         self.window.show()
         self.window.center_desktop()
-
-        # sounds
-        self.complete_sound = QtMultimedia.QSoundEffect()
-        file = Path('sounds/complete.wav').__str__()
-        sound_file = QtCore.QUrl.fromLocalFile(file)
-        self.complete_sound.setSource(sound_file)
-
-        self.move_sound = QtMultimedia.QSoundEffect()
-        file = Path('sounds/move.wav').__str__()
-        sound_file = QtCore.QUrl.fromLocalFile(file)
-        self.move_sound.setSource(sound_file)
-
-        self.no_possible_sound = QtMultimedia.QSoundEffect()
-        file = Path('sounds/no_possible.wav').__str__()
-        sound_file = QtCore.QUrl.fromLocalFile(file)
-        self.no_possible_sound.setSource(sound_file)
-
-        self.start_sound = QtMultimedia.QSoundEffect()
-        file = Path('sounds/start.wav').__str__()
-        sound_file = QtCore.QUrl.fromLocalFile(file)
-        self.start_sound.setSource(sound_file)
-
         sys.exit(self.app.exec())
 
     def start_game(self):
@@ -92,7 +69,7 @@ class GameManager(QtCore.QObject):
                 self.grid.progress_bar_thread.change_new_value(self.matrix.score)
                 self.grid.progress_bar_thread.start()
         else:
-            self.no_possible_sound.play()
+            self.play_sound(self.no_possible_sound)
 
     def no_moves(self, matrix: list) -> bool:
         if self.matrix.get_matrix_left(matrix) != matrix:

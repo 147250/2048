@@ -2,6 +2,22 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 from constant import *
 
 
+class Slider(QtWidgets.QSlider):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, ev: QtGui.QKeyEvent) -> None:
+        ev.ignore()
+
+
+class ToolButton(QtWidgets.QToolButton):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+
+    def keyPressEvent(self, ev: QtGui.QKeyEvent) -> None:
+        ev.ignore()
+
+
 class StartWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(StartWindow, self).__init__(parent)
@@ -139,6 +155,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.init_start_menu()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
+        self.tool_bar = QtWidgets.QToolBar()
+        self.tool_bar.setMovable(False)
+        self.tool_bar.toggleViewAction().setVisible(False)
+        self.volume_mute_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaVolumeMuted)
+        self.volume_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaVolume)
+        self.mute_btn = ToolButton()
+        self.mute_btn.is_muted = False
+        self.mute_btn.setIcon(self.volume_icon)
+        self.mute_btn.clicked.connect(self.change_mute_icon)
+        self.volume_slider = Slider()
+        self.volume_slider.setValue(80)
+        self.volume_slider.setOrientation(QtCore.Qt.Horizontal)
+        self.volume_slider.setMaximumWidth(100)
+        self.tool_bar.addWidget(self.mute_btn)
+        self.tool_bar.addWidget(self.volume_slider)
+        self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tool_bar)
+
     def init_start_menu(self):
         self.widget = StartWindow()
         self.widget.start_btn.clicked.connect(self.start_game)
@@ -182,6 +215,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def center_desktop(self):
         pos = QtWidgets.QApplication.desktop().availableGeometry().center()
         self.move(pos - QtCore.QPoint(self.width() // 2, self.height() // 2))
+
+    def change_mute_icon(self):
+        if self.mute_btn.is_muted:
+            self.mute_btn.setIcon(self.volume_icon)
+            self.mute_btn.is_muted = False
+        else:
+            self.mute_btn.setIcon(self.volume_mute_icon)
+            self.mute_btn.is_muted = True
 
 
 if __name__ == '__main__':
