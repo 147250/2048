@@ -1,5 +1,5 @@
 import random
-from constant import *
+import constant as c
 
 
 class Matrix:
@@ -53,7 +53,7 @@ class Matrix:
     @staticmethod
     def get_num():
         num = random.randint(1, 100)
-        if num > CHANCE_GET_FOUR:
+        if num > c.CHANCE_GET_FOUR:
             return 2
         else:
             return 4

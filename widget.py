@@ -1,5 +1,22 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
-from constant import *
+import constant as c
+
+
+class BestPlayers(QtWidgets.QLabel):
+    def __init__(self, lst: list, parent=None):
+        super().__init__(parent)
+        self.best_players = self.form_string(lst)
+
+    @staticmethod
+    def form_string(lst):
+        text = ''
+        for num, elem in enumerate(lst):
+            name, score = elem
+            space = ' ' * (15 - len(name))
+            name = f'{num}. {name}{space}'
+            text = f"{text}{name} {score}\n"
+        text.strip()
+        return text
 
 
 class Slider(QtWidgets.QSlider):
@@ -21,6 +38,8 @@ class ToolButton(QtWidgets.QToolButton):
 class StartWindow(QtWidgets.QWidget):
     def __init__(self, parent=None):
         super(StartWindow, self).__init__(parent)
+        self.parent_sizes = None
+
         self.label = QtWidgets.QLabel('2048')
         self.label.setAlignment(QtCore.Qt.AlignCenter)
 
@@ -31,12 +50,20 @@ class StartWindow(QtWidgets.QWidget):
 
         self.start_btn = QtWidgets.QPushButton('Start')
 
+        self.show_best_btn = QtWidgets.QPushButton('Best Players')
+        self.show_best_btn.clicked.connect(self.show_best)
+
+        self.best_player_label = BestPlayers(c.bst_players_lst)
+        self.best_player_label.setFrameStyle(QtWidgets.QFrame.Box | QtWidgets.QFrame.Panel)
+
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addStretch(1)
         self.vbox.addWidget(self.label)
         self.vbox.addSpacing(50)
         self.vbox.addWidget(self.enter_name)
         self.vbox.addWidget(self.start_btn)
+        self.vbox.addWidget(self.show_best_btn)
+        self.vbox.addWidget(self.best_player_label)
         self.vbox.addStretch(1)
 
         self.setLayout(self.vbox)
@@ -47,6 +74,18 @@ class StartWindow(QtWidgets.QWidget):
         if not len(text):
             status = False
         self.start_btn.setEnabled(status)
+
+    def show_best(self):
+        no_visible = not bool(self.best_player_label.text())
+        if no_visible:
+            text = self.best_player_label.best_players
+            self.parent_sizes = self.parent().size()
+            self.best_player_label.setText(text)
+        else:
+            self.best_player_label.setText('')
+            self.adjustSize()
+            self.parent().adjustSize()
+            self.parent().resize(self.parent_sizes)
 
 
 class Cell(QtWidgets.QLabel):
@@ -93,10 +132,10 @@ class GameGrid(QtWidgets.QWidget):
         self.place_label = QtWidgets.QLabel('1st Place')
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, MAX_SCORE)
+        self.progress_bar.setRange(0, c.max_score)
         self.place_label.setAlignment(QtCore.Qt.AlignCenter)
-        self.label_lst = [[Cell('', WIDTH_CELL) for _ in range(self.column)] for _ in range(self.row)]
-        self.progress_bar_thread = ProgressBarThread(MAX_SCORE)
+        self.label_lst = [[Cell('', c.WIDTH_CELL) for _ in range(self.column)] for _ in range(self.row)]
+        self.progress_bar_thread = ProgressBarThread(c.max_score)
         self.progress_bar_thread.progress_signal.connect(self.progress_bar.setValue)
 
         self.grid = QtWidgets.QGridLayout()
@@ -113,9 +152,6 @@ class GameGrid(QtWidgets.QWidget):
 
         self.setLayout(self.vbox)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
-
-    def change_progress_bar(self):
-        pass
 
     def change_labels_text(self, matrix: list) -> None:
         for i in range(self.row):
@@ -146,7 +182,7 @@ class GameGrid(QtWidgets.QWidget):
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    start_game_signal = QtCore.pyqtSignal()
+    start_game_signal = QtCore.pyqtSignal(str)
 
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -155,18 +191,22 @@ class MainWindow(QtWidgets.QMainWindow):
         self.init_start_menu()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
-        self.tool_bar = QtWidgets.QToolBar()
-        self.tool_bar.setMovable(False)
-        self.tool_bar.toggleViewAction().setVisible(False)
+        # volume tool bar
         self.volume_mute_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaVolumeMuted)
         self.volume_icon = self.style().standardIcon(QtWidgets.QStyle.SP_MediaVolume)
+
         self.mute_btn = ToolButton()
         self.mute_btn.setIcon(self.volume_icon)
         self.mute_btn.clicked.connect(self.change_mute_icon)
+
         self.volume_slider = Slider()
         self.volume_slider.setValue(80)
         self.volume_slider.setOrientation(QtCore.Qt.Horizontal)
         self.volume_slider.setMaximumWidth(100)
+
+        self.tool_bar = QtWidgets.QToolBar()
+        self.tool_bar.setMovable(False)
+        self.tool_bar.toggleViewAction().setVisible(False)
         self.tool_bar.addWidget(self.mute_btn)
         self.tool_bar.addWidget(self.volume_slider)
         self.addToolBar(QtCore.Qt.BottomToolBarArea, self.tool_bar)
@@ -177,9 +217,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setCentralWidget(self.widget)
 
     def start_game(self):
-        self.widget = GameGrid(ROW, COLUMN)
+        text = self.widget.enter_name.text()
+        self.widget = GameGrid(c.ROW, c.COLUMN)
         self.setCentralWidget(self.widget)
-        self.start_game_signal.emit()
+        self.start_game_signal.emit(text)
 
     def game_over_message(self):
         score = self.widget.score_label.text()

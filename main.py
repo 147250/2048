@@ -2,9 +2,9 @@ from PyQt5 import QtWidgets, QtCore, QtMultimedia
 from widget import MainWindow
 from matrix import Matrix
 from pathlib import Path
-from constant import *
 import sys
 import random
+import constant as c
 
 
 class GameManager(QtCore.QObject):
@@ -14,6 +14,7 @@ class GameManager(QtCore.QObject):
 
         self.matrix = None
         self.grid = None
+        self.player_name = None
 
         # draw main window
         self.app = QtWidgets.QApplication(sys.argv)
@@ -29,7 +30,7 @@ class GameManager(QtCore.QObject):
         self.window.volume_slider.valueChanged.connect(self.change_volume)
 
         # sound
-        self.player = QtMultimedia.QMediaPlayer(flags=QtMultimedia.QMediaPlayer.LowLatency)
+        self.media_player = QtMultimedia.QMediaPlayer(flags=QtMultimedia.QMediaPlayer.LowLatency)
 
         path = Path('sounds', 'complete.wav').absolute().__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
@@ -50,16 +51,26 @@ class GameManager(QtCore.QObject):
         # start application
         sys.exit(self.app.exec())
 
-    def start_game(self):
+    def start_game(self, text):
         # draw game grid
+        self.player_name = text
         self.play_sound(self.sound_start)
-        self.matrix = Matrix(ROW, COLUMN)
+        self.matrix = Matrix(c.ROW, c.COLUMN)
         self.grid = self.window.centralWidget()
         self.grid.change_labels_text(self.matrix.field)
         self.grid.key_signal.connect(self.key_press)
 
     def game_over(self):
+        self.players_lst()
         self.window.game_over_message()
+
+    def players_lst(self):
+        pos = (self.player_name, str(self.matrix.score))
+        c.bst_players_lst.append(pos)
+        c.bst_players_lst.sort(key=lambda x: int(x[1]), reverse=True)
+        c.bst_players_lst.pop()
+        c.settings.setValue('best_players', c.bst_players_lst)
+        c.settings.sync()
 
     @QtCore.pyqtSlot(str)
     def key_press(self, key_signal):
@@ -110,17 +121,17 @@ class GameManager(QtCore.QObject):
             return True
 
     def play_sound(self, sound):
-        self.player.setMedia(sound)
-        self.player.play()
+        self.media_player.setMedia(sound)
+        self.media_player.play()
 
     def mute_sound(self):
-        state = not self.player.isMuted()
-        self.player.setMuted(state)
+        state = not self.media_player.isMuted()
+        self.media_player.setMuted(state)
         self.window.change_mute_icon(state)
 
     def change_volume(self, value):
-        self.player.setVolume(value)
-        self.player.setMuted(False)
+        self.media_player.setVolume(value)
+        self.media_player.setMuted(False)
         self.window.change_mute_icon(False)
 
 
