@@ -19,7 +19,7 @@ class GameManager(QtCore.QObject):
         # draw main window
         self.app = QtWidgets.QApplication(sys.argv)
         self.window = MainWindow()
-        self.window.resize(500, 500)
+        self.window.resize(500, 660)
         self.window.setWindowTitle('2048')
         self.window.start_game_signal.connect(self.start_game)
         self.window.show()

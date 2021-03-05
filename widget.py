@@ -24,6 +24,7 @@ class StartWindow(QtWidgets.QWidget):
         self.parent_sizes = None
 
         self.label = QtWidgets.QLabel('2048')
+        self.label.setStyleSheet(c.FONT_MAX)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
 
         self.enter_name = QtWidgets.QLineEdit('Player')
@@ -33,10 +34,12 @@ class StartWindow(QtWidgets.QWidget):
 
         self.start_btn = QtWidgets.QPushButton('Start')
 
-        name = '\n'.join(elem[0] for elem in c.bst_players_lst)
+        name = '\n'.join(f'{num}.{elem[0]}' for num, elem in enumerate(c.bst_players_lst))
         score = '\n'.join(elem[1] for elem in c.bst_players_lst)
         self.bst_players_name = QtWidgets.QLabel(name)
+        self.bst_players_name.setStyleSheet(f'font: 18pt;')
         self.bst_players_score = QtWidgets.QLabel(score)
+        self.bst_players_score.setStyleSheet(f'font: 18pt;')
         self.hbox = QtWidgets.QHBoxLayout()
         self.hbox.addWidget(self.bst_players_name)
         self.hbox.addWidget(self.bst_players_score)
@@ -66,7 +69,6 @@ class Cell(QtWidgets.QLabel):
         super().__init__(text, parent)
         self.setMinimumSize(width, width)
         self.setAlignment(QtCore.Qt.AlignCenter)
-        self.setFrameStyle(QtWidgets.QFrame.Box | QtWidgets.QFrame.Panel)
 
 
 class ProgressBarThread(QtCore.QThread):
@@ -101,9 +103,9 @@ class GameGrid(QtWidgets.QWidget):
         self.row = row
         self.column = column
         self.score_label = QtWidgets.QLabel('Score: ')
-        self.score_label.setMaximumHeight(50)
+        self.score_label.setMaximumHeight(25)
         self.place_label = QtWidgets.QLabel('1st Place')
-        self.place_label.setMaximumHeight(50)
+        self.place_label.setMaximumHeight(25)
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, c.max_score)
@@ -116,7 +118,6 @@ class GameGrid(QtWidgets.QWidget):
         self.grid.setSpacing(10)
         for i in range(self.row):
             for j in range(self.column):
-                self.label_lst[i][j].setStyleSheet(c.GREY)
                 self.grid.addWidget(self.label_lst[i][j], i, j)
 
         self.vbox = QtWidgets.QVBoxLayout()
@@ -134,8 +135,8 @@ class GameGrid(QtWidgets.QWidget):
                 num = matrix[i][j]
                 text = str(num) if num else ''
                 self.label_lst[i][j].setText(text)
-                if num not in c.DICT_COLOR:
-                    num = 0
+                if num > 2048:
+                    num = float('INF')
                 self.label_lst[i][j].setStyleSheet(c.DICT_COLOR[num])
 
     def keyPressEvent(self, evnt: QtGui.QKeyEvent) -> None:
@@ -214,21 +215,20 @@ class MainWindow(QtWidgets.QMainWindow):
         evnt.ignore()
         self.widget.keyPressEvent(evnt)
 
-    # TODO: uncomment code
-    # def closeEvent(self, evnt: QtGui.QCloseEvent) -> None:
-    #     msg_box = QtWidgets.QMessageBox(self)
-    #     msg_box.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.FramelessWindowHint)
-    #     msg_box.setInformativeText('Close Application')
-    #     msg_box.setIcon(QtWidgets.QMessageBox.Question)
-    #     close_btn = msg_box.addButton('Yes', QtWidgets.QMessageBox.YesRole)
-    #     abort_btn = msg_box.addButton('No', QtWidgets.QMessageBox.NoRole)
-    #     msg_box.setDefaultButton(close_btn)
-    #     msg_box.exec()
-    #
-    #     if msg_box.clickedButton() == close_btn:
-    #         evnt.accept()
-    #     elif msg_box.clickedButton() == abort_btn:
-    #         evnt.ignore()
+    def closeEvent(self, evnt: QtGui.QCloseEvent) -> None:
+        msg_box = QtWidgets.QMessageBox(self)
+        msg_box.setWindowFlags(QtCore.Qt.Dialog | QtCore.Qt.FramelessWindowHint)
+        msg_box.setInformativeText('Close Application')
+        msg_box.setIcon(QtWidgets.QMessageBox.Question)
+        close_btn = msg_box.addButton('Yes', QtWidgets.QMessageBox.YesRole)
+        abort_btn = msg_box.addButton('No', QtWidgets.QMessageBox.NoRole)
+        msg_box.setDefaultButton(close_btn)
+        msg_box.exec()
+
+        if msg_box.clickedButton() == close_btn:
+            evnt.accept()
+        elif msg_box.clickedButton() == abort_btn:
+            evnt.ignore()
 
     def center_desktop(self):
         pos = QtWidgets.QApplication.desktop().availableGeometry().center()
