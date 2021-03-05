@@ -2,23 +2,6 @@ from PyQt5 import QtWidgets, QtCore, QtGui
 import constant as c
 
 
-class BestPlayers(QtWidgets.QLabel):
-    def __init__(self, lst: list, parent=None):
-        super().__init__(parent)
-        self.best_players = self.form_string(lst)
-
-    @staticmethod
-    def form_string(lst):
-        text = ''
-        for num, elem in enumerate(lst):
-            name, score = elem
-            space = ' ' * (15 - len(name))
-            name = f'{num}. {name}{space}'
-            text = f"{text}{name} {score}\n"
-        text.strip()
-        return text
-
-
 class Slider(QtWidgets.QSlider):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -50,11 +33,13 @@ class StartWindow(QtWidgets.QWidget):
 
         self.start_btn = QtWidgets.QPushButton('Start')
 
-        self.show_best_btn = QtWidgets.QPushButton('Best Players')
-        self.show_best_btn.clicked.connect(self.show_best)
-
-        self.best_player_label = BestPlayers(c.bst_players_lst)
-        self.best_player_label.setFrameStyle(QtWidgets.QFrame.Box | QtWidgets.QFrame.Panel)
+        name = '\n'.join(elem[0] for elem in c.bst_players_lst)
+        score = '\n'.join(elem[1] for elem in c.bst_players_lst)
+        self.bst_players_name = QtWidgets.QLabel(name)
+        self.bst_players_score = QtWidgets.QLabel(score)
+        self.hbox = QtWidgets.QHBoxLayout()
+        self.hbox.addWidget(self.bst_players_name)
+        self.hbox.addWidget(self.bst_players_score)
 
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addStretch(1)
@@ -62,8 +47,7 @@ class StartWindow(QtWidgets.QWidget):
         self.vbox.addSpacing(50)
         self.vbox.addWidget(self.enter_name)
         self.vbox.addWidget(self.start_btn)
-        self.vbox.addWidget(self.show_best_btn)
-        self.vbox.addWidget(self.best_player_label)
+        self.vbox.addLayout(self.hbox)
         self.vbox.addStretch(1)
 
         self.setLayout(self.vbox)
@@ -74,18 +58,6 @@ class StartWindow(QtWidgets.QWidget):
         if not len(text):
             status = False
         self.start_btn.setEnabled(status)
-
-    def show_best(self):
-        no_visible = not bool(self.best_player_label.text())
-        if no_visible:
-            text = self.best_player_label.best_players
-            self.parent_sizes = self.parent().size()
-            self.best_player_label.setText(text)
-        else:
-            self.best_player_label.setText('')
-            self.adjustSize()
-            self.parent().adjustSize()
-            self.parent().resize(self.parent_sizes)
 
 
 class Cell(QtWidgets.QLabel):
@@ -129,7 +101,9 @@ class GameGrid(QtWidgets.QWidget):
         self.row = row
         self.column = column
         self.score_label = QtWidgets.QLabel('Score: ')
+        self.score_label.setMaximumHeight(50)
         self.place_label = QtWidgets.QLabel('1st Place')
+        self.place_label.setMaximumHeight(50)
         self.progress_bar = QtWidgets.QProgressBar()
         self.progress_bar.setVisible(True)
         self.progress_bar.setRange(0, c.max_score)
@@ -142,6 +116,7 @@ class GameGrid(QtWidgets.QWidget):
         self.grid.setSpacing(10)
         for i in range(self.row):
             for j in range(self.column):
+                self.label_lst[i][j].setStyleSheet(c.GREY)
                 self.grid.addWidget(self.label_lst[i][j], i, j)
 
         self.vbox = QtWidgets.QVBoxLayout()
@@ -157,8 +132,11 @@ class GameGrid(QtWidgets.QWidget):
         for i in range(self.row):
             for j in range(self.column):
                 num = matrix[i][j]
-                num = str(num) if num else ''
-                self.label_lst[i][j].setText(num)
+                text = str(num) if num else ''
+                self.label_lst[i][j].setText(text)
+                if num not in c.DICT_COLOR:
+                    num = 0
+                self.label_lst[i][j].setStyleSheet(c.DICT_COLOR[num])
 
     def keyPressEvent(self, evnt: QtGui.QKeyEvent) -> None:
         key = evnt.key()
