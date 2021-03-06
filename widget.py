@@ -34,15 +34,17 @@ class StartWindow(QtWidgets.QWidget):
 
         self.start_btn = QtWidgets.QPushButton('Start')
 
-        name = '\n'.join(f'{num}.{elem[0]}' for num, elem in enumerate(c.bst_players_lst))
-        score = '\n'.join(elem[1] for elem in c.bst_players_lst)
-        self.bst_players_name = QtWidgets.QLabel(name)
-        self.bst_players_name.setStyleSheet(f'font: 18pt;')
-        self.bst_players_score = QtWidgets.QLabel(score)
-        self.bst_players_score.setStyleSheet(f'font: 18pt;')
-        self.hbox = QtWidgets.QHBoxLayout()
-        self.hbox.addWidget(self.bst_players_name)
-        self.hbox.addWidget(self.bst_players_score)
+        name = [f'{num}.{elem[0]}' for num, elem in enumerate(c.bst_players_lst)]
+        score = [elem[1] for elem in c.bst_players_lst]
+        length = min(len(name), len(score))
+        self.best_form = QtWidgets.QFormLayout()
+        for i in range(length):
+            label_name = QtWidgets.QLabel(name[i])
+            label_name.setStyleSheet(f'font: 18pt;')
+            label_score = QtWidgets.QLabel(score[i])
+            label_score.setAlignment(QtCore.Qt.AlignRight)
+            label_score.setStyleSheet(f'font: 18pt;')
+            self.best_form.addRow(label_name, label_score)
 
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addStretch(1)
@@ -50,7 +52,11 @@ class StartWindow(QtWidgets.QWidget):
         self.vbox.addSpacing(50)
         self.vbox.addWidget(self.enter_name)
         self.vbox.addWidget(self.start_btn)
-        self.vbox.addLayout(self.hbox)
+        label = QtWidgets.QLabel('Best Players')
+        label.setAlignment(QtCore.Qt.AlignCenter)
+        label.setStyleSheet(f'font: 18pt;')
+        self.vbox.addWidget(label)
+        self.vbox.addLayout(self.best_form)
         self.vbox.addStretch(1)
 
         self.setLayout(self.vbox)
