@@ -67,6 +67,7 @@ class GameManager(QtCore.QObject):
         self.window.game_over_message()
 
     def players_lst(self):
+        # save results in ini file
         pos = (self.player_name, str(self.matrix.score))
         c.bst_players_lst.append(pos)
         c.bst_players_lst.sort(key=lambda x: int(x[1]), reverse=True)

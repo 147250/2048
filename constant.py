@@ -1,13 +1,11 @@
 from PyQt5 import QtCore
 from pathlib import Path
 
+# constants
 ROW = 4
 COLUMN = 4
 CHANCE_GET_FOUR = 5
 WIDTH_CELL = 40
-
-# stylesheet
-
 
 # settings
 BEST_LST = [

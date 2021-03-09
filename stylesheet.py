@@ -33,7 +33,6 @@ Cell {{
 }}
 """
 
-
 # background colors
 WHITE = 'background-color: white;'
 BG_GREY = 'background-color: #cccccc;'
@@ -51,7 +50,6 @@ FONT_MAX = 'font: 34pt;'
 FONT_MIDDLE = 'font: 28pt;'
 FONT_MIN = 'font: 22pt;'
 FONT_SMALLEST = 'font: 16pt;'
-
 
 TEXT_BLACK = 'color: rgb(46, 52, 54);'
 TEXT_WHITE = 'color: rgb(238, 238, 236);'
