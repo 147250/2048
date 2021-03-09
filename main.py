@@ -34,19 +34,19 @@ class GameManager(QtCore.QObject):
         # sound
         self.media_player = QtMultimedia.QMediaPlayer(flags=QtMultimedia.QMediaPlayer.LowLatency)
 
-        path = Path(Path.cwd(), 'sounds', 'complete.wav').absolute().__str__()
+        path = Path(Path.cwd(), '2048', 'sounds', 'complete.wav').__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_score = QtMultimedia.QMediaContent(sound_file)
 
-        path = Path(Path.cwd(), 'sounds', 'move.wav').absolute().__str__()
+        path = Path(Path.cwd(), '2048', 'sounds', 'move.wav').__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_move = QtMultimedia.QMediaContent(sound_file)
 
-        path = Path(Path.cwd(), 'sounds', 'no_possible.wav').absolute().__str__()
+        path = Path(Path.cwd(), '2048', 'sounds', 'no_possible.wav').__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_no_possible = QtMultimedia.QMediaContent(sound_file)
 
-        path = Path(Path.cwd(), 'sounds', 'start.wav').absolute().__str__()
+        path = Path(Path.cwd(), '2048', 'sounds', 'start.wav').__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_start = QtMultimedia.QMediaContent(sound_file)
 

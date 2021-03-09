@@ -1,6 +1,6 @@
 from pathlib import Path
-start_window_img = Path(Path.cwd(), 'pictures', 'start.jpg').__str__()
-start_btn_img = Path(Path.cwd(), 'pictures', 'start_btn.png').__str__()
+start_window_img = Path(Path.cwd(), '2048', 'pictures', 'start.jpg').__str__()
+start_btn_img = Path(Path.cwd(), '2048', 'pictures', 'start_btn.png').__str__()
 
 stylesheet = f"""
 QMainWindow {{
