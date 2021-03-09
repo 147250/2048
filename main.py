@@ -5,6 +5,7 @@ from pathlib import Path
 import sys
 import random
 import constant as c
+import stylesheet as stl
 
 
 class GameManager(QtCore.QObject):
@@ -18,6 +19,7 @@ class GameManager(QtCore.QObject):
 
         # draw main window
         self.app = QtWidgets.QApplication(sys.argv)
+        self.app.setStyleSheet(stl.stylesheet)
         self.window = MainWindow()
         self.window.resize(500, 660)
         self.window.setWindowTitle('2048')
@@ -32,19 +34,19 @@ class GameManager(QtCore.QObject):
         # sound
         self.media_player = QtMultimedia.QMediaPlayer(flags=QtMultimedia.QMediaPlayer.LowLatency)
 
-        path = Path('sounds', 'complete.wav').absolute().__str__()
+        path = Path(Path.cwd(), 'sounds', 'complete.wav').absolute().__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_score = QtMultimedia.QMediaContent(sound_file)
 
-        path = Path('sounds', 'move.wav').absolute().__str__()
+        path = Path(Path.cwd(), 'sounds', 'move.wav').absolute().__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_move = QtMultimedia.QMediaContent(sound_file)
 
-        path = Path('sounds', 'no_possible.wav').absolute().__str__()
+        path = Path(Path.cwd(), 'sounds', 'no_possible.wav').absolute().__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_no_possible = QtMultimedia.QMediaContent(sound_file)
 
-        path = Path('sounds', 'start.wav').absolute().__str__()
+        path = Path(Path.cwd(), 'sounds', 'start.wav').absolute().__str__()
         sound_file = QtCore.QUrl.fromLocalFile(path)
         self.sound_start = QtMultimedia.QMediaContent(sound_file)
 

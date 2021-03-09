@@ -1,5 +1,6 @@
 from PyQt5 import QtWidgets, QtCore, QtGui
 import constant as c
+import stylesheet as s
 
 
 class Slider(QtWidgets.QSlider):
@@ -24,8 +25,8 @@ class StartWindow(QtWidgets.QWidget):
         self.parent_sizes = None
 
         self.label = QtWidgets.QLabel('2048')
-        self.label.setStyleSheet(c.FONT_MAX)
         self.label.setAlignment(QtCore.Qt.AlignCenter)
+        self.label.setFixedHeight(25)
 
         self.enter_name = QtWidgets.QLineEdit('Player')
         self.enter_name.setMaxLength(8)
@@ -33,6 +34,8 @@ class StartWindow(QtWidgets.QWidget):
         self.enter_name.textChanged.connect(self.enable_start_button)
 
         self.start_btn = QtWidgets.QPushButton('Start')
+        self.start_btn.setFixedSize(100, 100)
+        self.start_btn.setObjectName('start_btn')
 
         name = [f'{num}.{elem[0]}' for num, elem in enumerate(c.bst_players_lst)]
         score = [elem[1] for elem in c.bst_players_lst]
@@ -40,21 +43,25 @@ class StartWindow(QtWidgets.QWidget):
         self.best_form = QtWidgets.QFormLayout()
         for i in range(length):
             label_name = QtWidgets.QLabel(name[i])
-            label_name.setStyleSheet(f'font: 18pt;')
             label_score = QtWidgets.QLabel(score[i])
             label_score.setAlignment(QtCore.Qt.AlignRight)
-            label_score.setStyleSheet(f'font: 18pt;')
             self.best_form.addRow(label_name, label_score)
 
         self.vbox = QtWidgets.QVBoxLayout()
         self.vbox.addStretch(1)
+        self.vbox.addSpacing(25)
         self.vbox.addWidget(self.label)
-        self.vbox.addSpacing(50)
-        self.vbox.addWidget(self.enter_name)
-        self.vbox.addWidget(self.start_btn)
+        self.vbox.addSpacing(25)
+        name_box = QtWidgets.QVBoxLayout()
+        name_box.setContentsMargins(80, 0, 80, 0)
+        name_box.addWidget(self.enter_name)
+        btn_box = QtWidgets.QVBoxLayout()
+        btn_box.setAlignment(QtCore.Qt.AlignCenter)
+        btn_box.addWidget(self.start_btn)
+        self.vbox.addLayout(name_box)
+        self.vbox.addLayout(btn_box)
         label = QtWidgets.QLabel('Best Players')
         label.setAlignment(QtCore.Qt.AlignCenter)
-        label.setStyleSheet(f'font: 18pt;')
         self.vbox.addWidget(label)
         self.vbox.addLayout(self.best_form)
         self.vbox.addStretch(1)
@@ -108,13 +115,20 @@ class GameGrid(QtWidgets.QWidget):
         super().__init__(parent)
         self.row = row
         self.column = column
+
         self.score_label = QtWidgets.QLabel('Score: ')
         self.score_label.setMaximumHeight(25)
-        self.place_label = QtWidgets.QLabel('1st Place')
+        self.place_label = QtWidgets.QLabel('')
         self.place_label.setMaximumHeight(25)
+
         self.progress_bar = QtWidgets.QProgressBar()
+        self.progress_bar.score_lst = [int(elem[1]) for elem in c.bst_players_lst]
+        self.progress_bar.score_lst.reverse()
         self.progress_bar.setVisible(True)
-        self.progress_bar.setRange(0, c.max_score)
+        self.progress_bar.valueChanged.connect(self.place_progress)
+        self.progress_bar.setRange(0, 0)
+        self.progress_bar.setValue(0)
+
         self.place_label.setAlignment(QtCore.Qt.AlignCenter)
         self.label_lst = [[Cell('', c.WIDTH_CELL) for _ in range(self.column)] for _ in range(self.row)]
         self.progress_bar_thread = ProgressBarThread(c.max_score)
@@ -135,15 +149,36 @@ class GameGrid(QtWidgets.QWidget):
         self.setLayout(self.vbox)
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
 
+    def place_progress(self, value: int):
+        if value < self.progress_bar.maximum():
+            return
+        score_lst = self.progress_bar.score_lst
+        length = len(score_lst)
+        for i in range(length):
+            if score_lst[i] > value:
+                number = length - i
+                new_min = self.progress_bar.maximum()
+                new_max = score_lst[i]
+                self.progress_bar.setRange(new_min, new_max)
+                if number in (1, 2, 3):
+                    lst = ['st', 'nd', 'rd']
+                    suf = lst[number - 1]
+                else:
+                    suf = 'th'
+                self.place_label.setText(f'{number}{suf} Place / {score_lst[i]}')
+                return
+        else:
+            self.place_label.setText(f'1st Place')
+
     def change_labels_text(self, matrix: list) -> None:
         for i in range(self.row):
             for j in range(self.column):
                 num = matrix[i][j]
                 text = str(num) if num else ''
                 self.label_lst[i][j].setText(text)
-                if num > 2048:
+                if num > 4096:
                     num = float('INF')
-                self.label_lst[i][j].setStyleSheet(c.DICT_COLOR[num])
+                self.label_lst[i][j].setStyleSheet(s.DICT_COLOR[num])
 
     def keyPressEvent(self, evnt: QtGui.QKeyEvent) -> None:
         key = evnt.key()
