@@ -19,7 +19,8 @@ BEST_LST = [
     ('random click', str(2 ** 11))
 ]
 
-set_file = Path(Path.cwd(), '2048', 'set.ini')
+path = Path(__file__).absolute().parent
+set_file = Path(path, 'set.ini')
 settings = QtCore.QSettings(set_file.__str__(), QtCore.QSettings.IniFormat)
 bst_players_lst = settings.value('best_players', BEST_LST)
 max_score = int(bst_players_lst[0][1])
