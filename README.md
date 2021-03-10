@@ -13,6 +13,3 @@ Arrows - used for the moving of a block
 
 <b>License</b>
 This project is licensed under the GNU GPL License - see the LICENSE.md file for details
-
-<b>P/S</b>
-This is my first desktop application and project on github, so I will be grateful for your comments on improving the code or design of the release
