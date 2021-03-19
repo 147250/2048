@@ -207,6 +207,19 @@ class MainWindow(QtWidgets.QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
 
+        tray_menu = QtWidgets.QMenu()
+        hide_in_tray = tray_menu.addAction('Hide', self.hide)
+        hide_in_tray.triggered.connect(self.hide_in_tray_message)
+        tray_menu.addAction('Show', self.show)
+        tray_menu.addAction('Exit', QtWidgets.qApp.quit)
+
+        ico = self.style().standardIcon(QtWidgets.QStyle.SP_ComputerIcon)
+        self.sys_tray = QtWidgets.QSystemTrayIcon(ico, self)
+        self.sys_tray.setToolTip("2048")
+        self.sys_tray.setContextMenu(tray_menu)
+        self.sys_tray.show()
+
+
         self.widget = None
         self.init_start_menu()
         self.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
@@ -280,6 +293,11 @@ class MainWindow(QtWidgets.QMainWindow):
             self.mute_btn.setIcon(self.volume_mute_icon)
         else:
             self.mute_btn.setIcon(self.volume_icon)
+
+    def hide_in_tray_message(self):
+        self.hide()
+        self.sys_tray.showMessage('Information', 'Application was minimized to Tray',
+                                  QtWidgets.QSystemTrayIcon.Information, 2000)
 
 
 if __name__ == '__main__':
